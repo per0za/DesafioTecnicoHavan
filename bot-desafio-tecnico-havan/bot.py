@@ -1,42 +1,14 @@
-"""
-WARNING:
-
-Please make sure you install the bot dependencies with `pip install --upgrade -r requirements.txt`
-in order to get all the dependencies on your Python environment.
-
-Also, if you are using PyCharm or another IDE, make sure that you use the SAME Python interpreter
-as your IDE.
-
-If you get an error like:
-```
-ModuleNotFoundError: No module named 'botcity'
-```
-
-This means that you are likely using a different Python interpreter than the one used to install the dependencies.
-To fix this, you can either:
-- Use the same interpreter as your IDE and install your bot with `pip install --upgrade -r requirements.txt`
-- Use the same interpreter as the one used to install the bot (`pip install --upgrade -r requirements.txt`)
-
-Please refer to the documentation for more information at
-https://documentation.botcity.dev/tutorials/python-automations/web/
-"""
-
-
-# Import for the Web Bot
+from pathlib import Path
 from botcity.web import WebBot, Browser, By
-
-# Import for integration with BotCity Maestro SDK
+from botcity.plugins.excel import BotExcelPlugin
 from botcity.maestro import *
 
-# Disable errors if we are not connected to Maestro
 BotMaestroSDK.RAISE_NOT_CONNECTED = False
 
+DIRETORIO_RESOURCES = str(Path(__file__).resolve().parent / "resources")
 
 def main():
-    # Runner passes the server url, the id of the task being executed,
-    # the access token and the parameters that this task receives (when applicable).
     maestro = BotMaestroSDK.from_sys_args()
-    ## Fetch the BotExecution with details from the task, including parameters
     execution = maestro.get_execution()
 
     print(f"Task ID is: {execution.task_id}")
@@ -44,27 +16,20 @@ def main():
 
     bot = WebBot()
 
-    # Configure whether or not to run on headless mode
     bot.headless = False
 
-    # Uncomment to change the default Browser to Firefox
     bot.browser = Browser.FIREFOX
 
-    # Uncomment to set the WebDriver path
     bot.driver_path = bot.get_resource_abspath("geckodriver.exe")
 
-    # Opens the BotCity website.
-    bot.browse("https://www.botcity.dev")
+    bot.download_folder_path = DIRETORIO_RESOURCES
 
-    # Implement here your logic...
-    ...
+    bot.browse("https://www.rpachallenge.com/")
 
-    # Wait 3 seconds before closing
+    botao_download_excel = bot.find_element("//a[contains(@href, 'challenge.xlsx') and contains(@class, 'uiColorPrimary') and contains(normalize-space(text()), 'Download Excel')]", By.XPATH)
+    botao_download_excel.click()
     bot.wait(3000)
 
-    # Finish and clean up the Web Browser
-    # You MUST invoke the stop_browser to avoid
-    # leaving instances of the webdriver open
     bot.stop_browser()
 
     # Uncomment to mark this task as finished on BotMaestro
