@@ -1,0 +1,79 @@
+# ===============================
+# Arquivos e pastas de sistema
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Ambientes virtuais
+# ===============================
+.venv/
+env/
+venv/
+
+# ===============================
+# Compilação e cache do Python
+# ===============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# ===============================
+# Logs e evidências de execução
+# ===============================
+logs/
+erros/
+*.log
+*.out
+*.err
+
+# ===============================
+# Arquivos temporários
+# ===============================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.lock
+
+# ===============================
+# Configurações locais e IDEs
+# ===============================
+.vscode/
+.idea/
+*.code-workspace
+
+# ===============================
+# Arquivos de dependência gerados
+# ===============================
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ===============================
+# Sistema de cache de automação BotCity
+# ===============================
+.botcity/
+output/
+screenshots/
+
+# ===============================
+# Arquivos sensíveis
+# ===============================
+*.env
+.env.*
+config.json
+secrets.json
+token.txt
+
+# ===============================
+# Outros (Windows e Linux)
+# ===============================
+desktop.ini
+*.log.*
+*.backup
