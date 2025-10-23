@@ -48,10 +48,10 @@ def main():
     bot.headless = False
 
     # Uncomment to change the default Browser to Firefox
-    # bot.browser = Browser.FIREFOX
+    bot.browser = Browser.FIREFOX
 
     # Uncomment to set the WebDriver path
-    # bot.driver_path = "<path to your WebDriver binary>"
+    bot.driver_path = bot.get_resource_abspath("geckodriver.exe")
 
     # Opens the BotCity website.
     bot.browse("https://www.botcity.dev")
