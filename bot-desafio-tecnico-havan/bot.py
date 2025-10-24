@@ -1,84 +1,106 @@
+import os
+import logging
 from pathlib import Path
-from botcity.web import WebBot, Browser, By
-from botcity.plugins.excel import BotExcelPlugin
-from botcity.maestro import *
+from datetime import datetime
 
-BotMaestroSDK.RAISE_NOT_CONNECTED = False
+import pandas as pd
+
+from botcity.maestro import BotMaestroSDK
+from botcity.web import WebBot, Browser, By
 
 DIRETORIO_RESOURCES = str(Path(__file__).resolve().parent / "resources")
 
-def main():
-    maestro = BotMaestroSDK.from_sys_args()
-    execucao = maestro.get_execution()
+class DownloadExcel:
+    def __init__(self):
+        self.bot = WebBot()
+        self.maestro = BotMaestroSDK.from_sys_args()
+        self._criar_log()
 
-    print(f"Task ID is: {execucao.task_id}")
-    print(f"Task Parameters are: {execucao.parameters}")
-
-    bot = WebBot()
-    excel = BotExcelPlugin()
-
-    bot.headless = False
-
-    bot.browser = Browser.FIREFOX
-
-    bot.driver_path = bot.get_resource_abspath("geckodriver.exe")
-
-    bot.download_folder_path = DIRETORIO_RESOURCES
-
-    bot.browse("https://www.rpachallenge.com/")
-
-    botao_download_excel = bot.find_element("//a[contains(@href, 'challenge.xlsx') and contains(@class, 'uiColorPrimary') and contains(normalize-space(text()), 'Download Excel')]", By.XPATH)
-    botao_download_excel.click()
-    bot.wait(3000)
-
-    botao_start = bot.find_element("//button[contains(@class, 'uiColorButton') and normalize-space(text())='Start']", By.XPATH)
-    botao_start.click()
-
-    dados_excel_desafio = excel.read(bot.get_resource_abspath("challenge.xlsx")).as_list()
-
-    for dados in dados_excel_desafio[1:]:
-        primeiro_nome = bot.find_element("//input[@ng-reflect-name='labelFirstName']", By.XPATH)
-        primeiro_nome.send_keys(dados[0])
-
-        sobrenome = bot.find_element("//input[@ng-reflect-name='labelLastName']", By.XPATH)
-        sobrenome.send_keys(dados[1])
-
-        nome_empresa = bot.find_element("//input[@ng-reflect-name='labelCompanyName']", By.XPATH)
-        nome_empresa.send_keys(dados[2])
-
-        cargo = bot.find_element("//input[@ng-reflect-name='labelRole']", By.XPATH)
-        cargo.send_keys(dados[3])
-
-        endereco = bot.find_element("//input[@ng-reflect-name='labelAddress']", By.XPATH)
-        endereco.send_keys(dados[4])
-
-        email = bot.find_element("//input[@ng-reflect-name='labelEmail']", By.XPATH)
-        email.send_keys(dados[5])
-
-        numero_telefone = bot.find_element("//input[@ng-reflect-name='labelPhone']", By.XPATH)
-        numero_telefone.send_keys(dados[6])
-
-        botao_enviar = bot.find_element("//input[@type='submit' and contains(@class, 'uiColorButton') and @value='Submit']", By.XPATH)
-        botao_enviar.click()
-
-    bot.wait(5000)
-
-    bot.stop_browser()
-
-    # Uncomment to mark this task as finished on BotMaestro
-    # maestro.finish_task(
-    #     task_id=execution.task_id,
-    #     status=AutomationTaskFinishStatus.SUCCESS,
-    #     message="Task Finished OK.",
-    #     total_items=0,
-    #     processed_items=0,
-    #     failed_items=0
-    # )
+        self.df = pd.DataFrame()
 
 
-def not_found(label):
-    print(f"Element not found: {label}")
+    def main(self):
+        self.bot.headless = False
+
+        self.bot.browser = Browser.FIREFOX
+
+        # TO DO
+        self.bot.driver_path = self.bot.get_resource_abspath("geckodriver.exe")
+
+        self.bot.download_folder_path = DIRETORIO_RESOURCES
+
+        self.bot.browse("https://www.rpachallenge.com/")
+
+        botao_download_excel = self.bot.find_element(
+            "//a[contains(@href, 'challenge.xlsx') and contains(@class, 'uiColorPrimary') and contains(normalize-space(text()), 'Download Excel')]",
+            By.XPATH,
+        )
+        botao_download_excel.click()
+        self.bot.wait(3000)
+
+        botao_start = self.bot.find_element(
+            "//button[contains(@class, 'uiColorButton') and normalize-space(text())='Start']",
+            By.XPATH,
+        )
+        botao_start.click()
+
+        self.df = pd.read_excel(fr"{DIRETORIO_RESOURCES}/challenge.xlsx")
+
+        self.df.columns = (
+            self.df.columns
+            .str.strip()
+            .str.replace(r"\s+", " ", regex=True)
+        )
+
+        for _, row in self.df.iterrows():
+            primeiro_nome = self.bot.find_element(
+                "//input[@ng-reflect-name='labelFirstName']", By.XPATH
+            )
+            primeiro_nome.send_keys(row["First Name"])
+
+            sobrenome = self.bot.find_element(
+                "//input[@ng-reflect-name='labelLastName']", By.XPATH
+            )
+            sobrenome.send_keys(row["Last Name"])
+
+            nome_empresa = self.bot.find_element(
+                "//input[@ng-reflect-name='labelCompanyName']", By.XPATH
+            )
+            nome_empresa.send_keys(row["Company Name"])
+
+            cargo = self.bot.find_element("//input[@ng-reflect-name='labelRole']", By.XPATH)
+            cargo.send_keys(row["Role in Company"])
+
+            endereco = self.bot.find_element(
+                "//input[@ng-reflect-name='labelAddress']", By.XPATH
+            )
+            endereco.send_keys(row["Address"])
+
+            email = self.bot.find_element("//input[@ng-reflect-name='labelEmail']", By.XPATH)
+            email.send_keys(row["Email"])
+
+            numero_telefone = self.bot.find_element(
+                "//input[@ng-reflect-name='labelPhone']", By.XPATH
+            )
+            numero_telefone.send_keys(row["Phone Number"])
+
+            botao_enviar = self.bot.find_element(
+                "//input[@type='submit' and contains(@class, 'uiColorButton') and @value='Submit']",
+                By.XPATH,
+            )
+            botao_enviar.click()
+
+        self.bot.wait(3000)
+        self.bot.stop_browser()
 
 
-if __name__ == '__main__':
-    main()
+    def _criar_log(self):
+        os.makedirs("logs", exist_ok=True)
+        nome_arquivo_log = datetime.now().strftime("logs/execucao_%d-%m-%Y.log")
+
+        logging.basicConfig(filename=nome_arquivo_log, level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+
+if __name__ == "__main__":
+    download_excel = DownloadExcel()
+    download_excel.main()
