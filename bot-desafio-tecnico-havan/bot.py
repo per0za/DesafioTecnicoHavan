@@ -27,7 +27,7 @@ class DownloadExcel:
 
         self.bot.browser = Browser.FIREFOX
 
-        self.bot.driver_path = rf"{DIRETORIO_RESOURCES}/challenge.xlsx"
+        self.bot.driver_path = GeckoDriverManager().install()
 
         self.bot.download_folder_path = DIRETORIO_RESOURCES
 
