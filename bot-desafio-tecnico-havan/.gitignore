@@ -25,11 +25,9 @@ __pycache__/
 # ===============================
 logs/
 erros/
-ArquivoExcel/
 *.log
 *.out
 *.err
-*.xlsx
 
 # ===============================
 # Arquivos temporários

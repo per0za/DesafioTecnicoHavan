@@ -146,7 +146,7 @@ class DownloadExcel:
     def configurar_bot(self):
         logging.info("Configurando bot...")
         self.bot = WebBot()
-        self.bot.headless = True
+        self.bot.headless = False # mudar para True se quiser rodar sem abrir o navegador
         self.bot.browser = Browser.FIREFOX
         os.environ['WDM_LOG'] = str(logging.NOTSET)
         self.bot.driver_path = GeckoDriverManager().install()
